@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/16 05:18:43 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/16 05:44:31 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,8 @@ int main(int argc, char **argv, char **env)
 		//Child process (cmd)
 		printf("in child(cmd)...\n");
 		in_file = open(argv[1], O_RDONLY);
-		if(dup2(fd[1], STDIN_FILENO) == -1)
+		dup2(in_file, STDIN_FILENO);
+		if(dup2(fd[1], STDOUT_FILENO) == -1)
 			return (EXIT_FAILURE + 2);
 		close(fd[0]);
 		close(fd[1]);
@@ -100,7 +101,7 @@ int main(int argc, char **argv, char **env)
 	pid1 = fork();
 	if (pid1 == 0)
 	{
-		exit(0);
+		cmd = get_cmd(argv[3], env);
 		out_file = open(argv[4], O_RDWR | O_CREAT, 0777); // O_WRONLY ??
 		if (dup2(fd[0], STDIN_FILENO) == -1)
 			return (EXIT_FAILURE + 3);
@@ -108,7 +109,6 @@ int main(int argc, char **argv, char **env)
 		if (dup2(out_file, STDOUT_FILENO) == -1)
 			return (EXIT_FAILURE + 4);
 		close(fd[1]);
-		cmd = get_cmd(argv[3], env);
 		if (execve(cmd[0], &cmd[1], env) == -1) // or NULL ??
 		{	
 			perror("execve");
@@ -119,7 +119,6 @@ int main(int argc, char **argv, char **env)
 	close(fd[0]);
 	close(fd[1]);
 	waitpid(pid, NULL, 0);
-	exit(0);
 	waitpid(pid1, NULL, 0);
 	return (EXIT_SUCCESS);
 }

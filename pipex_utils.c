@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/16 00:56:36 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/16 05:05:54 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/16 05:27:10 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static void	free_all(char **base, char **cmd_opt)
 	{
 		while (base[++i])
 		{
-			printf("@%s | addr: %p\n", base[i], base[i]);
+			//printf("@%s | addr: %p\n", base[i], base[i]);
 			free(base[i]);	
 		}
 		free(base);
@@ -57,7 +57,7 @@ char	**get_cmd(char *argv, char **env)
 	{
 		if (ft_strncmp(env[i], "PATH=", 5) == 0)
 		{
-			printf("NORMAL>%s\n",env[i]);
+			// printf("NORMAL>%s\n",env[i]);
 			// printf("MODIFIED>%s\n",env[i]+5);
 			base = ft_split((env[i]+ 5), ':');
 			break ;
