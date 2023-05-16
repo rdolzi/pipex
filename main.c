@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/16 05:12:54 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/16 05:18:43 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ int main(int argc, char **argv, char **env)
 			perror("execve");
 			return (EXIT_FAILURE + 4);
 		}
-	}
+	}//
 	pid1 = fork();
 	if (pid1 == 0)
 	{
