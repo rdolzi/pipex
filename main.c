@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/16 05:44:31 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/18 03:53:13 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,71 +54,95 @@
 
 // ./pipex infile cmd1 cmd2 outfile
 
-
+// ./pipex file1 cmd1 cmd2 file2 > argc=5 (cmds=2)   >inf RDONLY >outf 0_WRITE | O_CREAT
+// ./pipex file1 cmd1 cmd2 ... cmdN file2 > argc = n (cmds=n-3)  >inf RDONLY >outf 0_WRITE | O_CREAT
+// ./pipex here_doc LIMITER cmd cmd1 file > argc=6 >inf RDONLY >outf 0_WRITE | O_CREAT
 int main(int argc, char **argv, char **env)
 {
-	// fd[0] - read
-	// fd[1] - write
-	int		pid;
-	int		pid1;
-	int		fd[2];
-	char	**cmd;
-	int		in_file;
-	int		out_file;
+	int		i;
+	t_file	file;
+
+	// char	**cmd;
+	// int		in_file;
+	// int		out_file;
 	
-	if (pipe(fd) == -1)
+	if (argc != 5 || argv[1] == "here_doc") // set file->is_bonus?
 	{
-		perror("pipe");
-		exit(EXIT_FAILURE);
-	}
-	pid = fork();
-	if (argc != 5)
-	{
-		write(2, &"argc !=5", 8);
+		write(2, &"Error\n", 6);
 		return (EXIT_FAILURE  + 1);
 	}
-	if (pid == 0)
-	{
-		//Child process (cmd)
-		printf("in child(cmd)...\n");
-		in_file = open(argv[1], O_RDONLY);
-		dup2(in_file, STDIN_FILENO);
-		if(dup2(fd[1], STDOUT_FILENO) == -1)
-			return (EXIT_FAILURE + 2);
-		close(fd[0]);
-		close(fd[1]);
-		cmd = get_cmd(argv[2], env);
-		int i = -1;
-		printf("in child(cmd)...\n");
-		while (cmd[++i])
-			printf("%s\n", cmd[i]);
-		if(execve(cmd[0], &cmd[1], env) == -1)  // or NULL ??
-		{	
-			perror("execve");
-			return (EXIT_FAILURE + 4);
-		}
-	}//
-	pid1 = fork();
-	if (pid1 == 0)
-	{
-		cmd = get_cmd(argv[3], env);
-		out_file = open(argv[4], O_RDWR | O_CREAT, 0777); // O_WRONLY ??
-		if (dup2(fd[0], STDIN_FILENO) == -1)
-			return (EXIT_FAILURE + 3);
-		close(fd[0]);
-		if (dup2(out_file, STDOUT_FILENO) == -1)
-			return (EXIT_FAILURE + 4);
-		close(fd[1]);
-		if (execve(cmd[0], &cmd[1], env) == -1) // or NULL ??
-		{	
-			perror("execve");
-			return (EXIT_FAILURE + 4);
-		}
-	}
-	//Parent process
-	close(fd[0]);
-	close(fd[1]);
-	waitpid(pid, NULL, 0);
-	waitpid(pid1, NULL, 0);
+	setup_files(argc, argv, &file);
+	i = -1;
+	while (++i < argc - 3)
+		child_process(argv, i + 2, env, &file);
 	return (EXIT_SUCCESS);
+	
+
+
+
+
+
+
+
+	
+
+
+
+	// pid = fork();
+	// if (fork() == -1)
+	// {
+	// 	perror("fork");
+	// 	exit(EXIT_FAILURE);
+	// }
+	// if (pid == 0)
+	// 	child_process();
+	// waitpid(pid, NULL, 0);
+
+	// if (pid == 0)
+	// {
+	// 	//Child process (cmd)
+	// 	in_file = open(argv[1], O_RDONLY);
+	// 	dup2(in_file, STDIN_FILENO);
+	// 	// if(dup2(fd[1], STDOUT_FILENO) == -1)
+	// 	// 	return (EXIT_FAILURE + 2);
+	// 	close(fd[0]);
+	// 	close(fd[1]);
+	// 	close(in_file);
+	// 	cmd = get_cmd(argv[2], env);
+	// 	int i = -1;
+	// 	while (cmd[++i])
+	// 		printf(">%s\n", cmd[i]);
+	// 	if(execve(cmd[0], &cmd[1], env) == -1)  // or NULL ??
+	// 	{	
+	// 		perror("execve");
+	// 		return (EXIT_FAILURE + 4);
+	// 	}
+	// }
+	// pid1 = fork();
+	// if (pid1 == 0)
+	// {
+	// 	char *str;
+	// 	while (read(fd[0], &str, 1000) >= 0)
+	// 		printf("%s", str);
+	// 	// cmd = get_cmd(argv[3], env);
+	// 	out_file = open(argv[4], O_RDWR | O_CREAT, 0777); // O_WRONLY ??
+	// 	// if (dup2(fd[0], STDIN_FILENO) == -1)
+	// 	// 	return (EXIT_FAILURE + 3);
+	// 	// close(fd[0]);
+	// 	// if (dup2(out_file, STDOUT_FILENO) == -1)
+	// 	// 	return (EXIT_FAILURE + 4);
+	// 	// close(fd[1]);
+	// 	// close(out_file);
+	// 	// if (execve(cmd[0], &cmd[1], env) == -1) // or NULL ??
+	// 	// {	
+	// 	// 	perror("execve");
+	// 	// 	return (EXIT_FAILURE + 4);
+	// 	// }
+	// }
+	// //Parent process
+	// close(fd[0]);
+	// close(fd[1]);
+	// waitpid(pid, NULL, 0);
+	// waitpid(pid1, NULL, 0);
+	// return (EXIT_SUCCESS);
 }
