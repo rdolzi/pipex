@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/18 03:53:13 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/18 04:40:38 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,15 +62,13 @@ int main(int argc, char **argv, char **env)
 	int		i;
 	t_file	file;
 
-	// char	**cmd;
-	// int		in_file;
-	// int		out_file;
-	
-	if (argc != 5 || argv[1] == "here_doc") // set file->is_bonus?
+	if (argc != 5) // se invece here_doc e'un file?
 	{
 		write(2, &"Error\n", 6);
 		return (EXIT_FAILURE  + 1);
 	}
+	file.argc = argc;
+	file.is_bonus = 0;
 	setup_files(argc, argv, &file);
 	i = -1;
 	while (++i < argc - 3)

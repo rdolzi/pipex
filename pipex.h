@@ -14,9 +14,11 @@
 //is_heredoc: -1 se non si tratta del bonus
 typedef struct process
 {
+	int		argc;
 	int		fd[2];
 	int		filein;
 	int		fileout;
+	int		is_bonus;
 	int		is_heredoc;
 	char	**cmd;
 	char	*path;
