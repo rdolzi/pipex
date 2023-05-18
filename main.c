@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/18 05:17:41 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/18 05:26:12 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int main(int argc, char **argv, char **env)
 	int		i;
 	t_file	file;
 
-	if (argc != 5) // se invece here_doc e'un file?
+	if (argc != 5) // se here_doc non in bonus?
 	{
 		write(2, &"Error\n", 6);
 		return (EXIT_FAILURE  + 1);
@@ -72,8 +72,8 @@ int main(int argc, char **argv, char **env)
 	file.idx = 2;
 	setup_files(argc, argv, &file);
 	i = -1;
-	while (++i < argc - 3)
-		child_process(argv, file.idx++, env, &file);
+	while (++i < (argc - 3 - file.is_heredoc))
+		child_process(argv, file.idx++, env, &file); //sostituire pos con file.idx++
 	return (EXIT_SUCCESS);
 	
 

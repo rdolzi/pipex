@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/18 05:18:00 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/18 05:56:05 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,17 +44,59 @@ char	*get_path(char *cmd, char **env)
 	free_matrix(base);
 	return (NULL);
 }
+// fare funzione ft_dup2 per accorciare righe gestione errori
+void	set_fd_bonus(t_file *file, int pos)
+{
+	// set output in out.txt > vale sia per here_doc(==4) che non
+	if (pos == (file->argc -1))
+	{
+		if(dup2(file->fileout, STDOUT_FILENO) == -1)
+			exit(1); //set errore dup
+		close(file->fd[1]);
+		if(dup2(file->fd[0], STDIN_FILENO) == -1)
+			exit(1);
+		close(file->fd[0]);
+	} // DA QUI IN POI TROVARE PATTERN PER ACCORCIARE!
+	// PRIMO && HERE_DOC | leggere da STDIN  mandare in fd[1]-> passo il char **testo per execve
+	if (file->is_heredoc && pos == 3)
+	{
+		close(file->fd[0]);
+		if(dup2(file->fd[1], STDOUT_FILENO) == -1)
+			exit(1); // gestione errore
+		close(file->fd[1]);
+		//adesso da output in fd[1] (perche stdout == fd[1])
+	}
+	if (!file->is_heredoc && pos == 3) // PRIMO && !HERE_DOC | leggere da in.txt  mandare in fd[1]-> passo il char **testo per execve
+	{
+		lose(file->fd[0]);
+		if(dup2(file->fd[1], STDOUT_FILENO) == -1)
+			exit(1); // gestione errore
+		close(file->fd[1]);
+	}
+	if (!file->is_heredoc && pos != (file->argc -1)) // NON PRIMO NON ULTIMO && !HERE_DOC | leggere da fd[0] mandare in fd[1]
+	{
+		close(file->fd[1]);
+		if(dup2(file->fd[0], STDIN_FILENO) == -1)
+			exit(1);
+		if(dup2(file->fd[1], STDOUT_FILENO) == -1)
+			exit(1); 
+	}
+}
+
 
 // fd[0] - read
 // fd[1] - write
 void	set_fd(t_file *file, int pos)
 {
+	if (file->is_bonus )
+		set_fd_bonus(file, pos);
 	// PRIMO && HERE_DOC | leggere da STDIN -> passo il char **testo per execve
 	if (file->is_bonus && file->is_heredoc && pos == 3)
 	{
 		close(file->fd[0]);
 		dup2(file->fd[1], STDOUT_FILENO);
 		close(file->fd[1]);
+		//adesso da output in fd[1] (perche stdout == fd[1])
 	}
 	// BONUS , ULTIMO CMD -> STDOUT (APPEND) in file
 	else if (file->is_bonus && pos == (file->argc - 1))
