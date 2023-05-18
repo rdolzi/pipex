@@ -6,20 +6,11 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/18 04:45:58 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/18 05:18:00 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-
-void	set_fd(t_file *file)
-{
-	// leggere da STDIN -> passo il char **testo per execve
-	if (file->is_bonus && file->is_heredoc)
-	{
-
-	}
-}
 
 char	**get_cmd(char **argv, int pos)
 {
@@ -56,6 +47,46 @@ char	*get_path(char *cmd, char **env)
 
 // fd[0] - read
 // fd[1] - write
+void	set_fd(t_file *file, int pos)
+{
+	// PRIMO && HERE_DOC | leggere da STDIN -> passo il char **testo per execve
+	if (file->is_bonus && file->is_heredoc && pos == 3)
+	{
+		close(file->fd[0]);
+		dup2(file->fd[1], STDOUT_FILENO);
+		close(file->fd[1]);
+	}
+	// BONUS , ULTIMO CMD -> STDOUT (APPEND) in file
+	else if (file->is_bonus && pos == (file->argc - 1))
+	{
+
+	}
+	// BONUS, NON HERE_DOC, NON ULTIMO CMD(n-esimo)
+	else if (file->is_bonus && !file->is_heredoc && pos != (file->argc - 1))
+	{
+
+	}
+
+}
+
+void	set_bonus(int argc, char **argv, t_file *file)
+{
+	if (argv[1] == "here_doc")
+	{
+		file->filein = -2;
+		file->fileout = open(argv[argc - 1], O_WRONLY, O_CREAT | O_APPEND, 0777);
+		file->idx = 3;
+		file->is_heredoc = 1;
+	}
+	else
+	{
+		file->filein = open(argv[1], O_RDONLY);  //se non esiste file di input?? "zsh: no such file or directory: in3.txt"
+		file->fileout = open(argv[argc - 1], O_WRONLY, O_CREAT, 0777);
+		file->is_heredoc = 0;
+	}
+}
+
+//V2 SEPARAZIONE BONUS & NON
 void	setup_files(int argc, char **argv, t_file *file)
 {
 
@@ -64,12 +95,8 @@ void	setup_files(int argc, char **argv, t_file *file)
 		perror("pipe");
 		exit(EXIT_FAILURE);
 	}
-	if (argv[1] == "here_doc")
-	{
-		file->filein = -2;
-		file->fileout = open(argv[argc - 1], O_WRONLY, O_CREAT | O_APPEND, 0777);
-		file->is_heredoc = 1;
-	}
+	if (file->is_bonus)
+		set_bonus(argc, argv, file);
 	else
 	{
 		file->filein = open(argv[1], O_RDONLY);  //se non esiste file di input?? "zsh: no such file or directory: in3.txt"
@@ -101,7 +128,7 @@ void	child_process(char **argv, int pos, char **env, t_file *file)
 			free_matrix(file->cmd);
 			exit(5); // gestire messaggio errore "zsh: command not found: ciao" // check chiusura fd
 		}
-		set_fd(file);
+		set_fd(file, pos);
 		if(execve(file->path, file->cmd, env) == -1)  // or NULL ??
 		{	
 			perror("execve");

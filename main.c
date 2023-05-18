@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/18 04:40:38 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/18 05:17:41 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,10 +69,11 @@ int main(int argc, char **argv, char **env)
 	}
 	file.argc = argc;
 	file.is_bonus = 0;
+	file.idx = 2;
 	setup_files(argc, argv, &file);
 	i = -1;
 	while (++i < argc - 3)
-		child_process(argv, i + 2, env, &file);
+		child_process(argv, file.idx++, env, &file);
 	return (EXIT_SUCCESS);
 	
 

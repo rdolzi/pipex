@@ -14,6 +14,7 @@
 //is_heredoc: -1 se non si tratta del bonus
 typedef struct process
 {
+	int		idx;
 	int		argc;
 	int		fd[2];
 	int		filein;
