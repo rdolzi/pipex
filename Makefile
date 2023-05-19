@@ -3,6 +3,7 @@ LIBFT = libft
 
 SRCS = main.c \
 	   pipex_utils.c \
+	   child_process.c \
 
 
 FLAGS = -Wextra -Werror -Wall

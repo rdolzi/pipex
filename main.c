@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/18 05:26:12 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/19 23:21:48 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@
 // ./pipex file1 cmd1 cmd2 file2 > argc=5 (cmds=2)   >inf RDONLY >outf 0_WRITE | O_CREAT
 // ./pipex file1 cmd1 cmd2 ... cmdN file2 > argc = n (cmds=n-3)  >inf RDONLY >outf 0_WRITE | O_CREAT
 // ./pipex here_doc LIMITER cmd cmd1 file > argc=6 >inf RDONLY >outf 0_WRITE | O_CREAT
+// nella struttura conservare STDIN/OUT ??
 int main(int argc, char **argv, char **env)
 {
 	int		i;
@@ -73,75 +74,10 @@ int main(int argc, char **argv, char **env)
 	setup_files(argc, argv, &file);
 	i = -1;
 	while (++i < (argc - 3 - file.is_heredoc))
+	{
+		printf("\nCIAO(pid:%d)\n",getpid());
 		child_process(argv, file.idx++, env, &file); //sostituire pos con file.idx++
+	}
+	// close(file.filein) close(file.filein) ??
 	return (EXIT_SUCCESS);
-	
-
-
-
-
-
-
-
-	
-
-
-
-	// pid = fork();
-	// if (fork() == -1)
-	// {
-	// 	perror("fork");
-	// 	exit(EXIT_FAILURE);
-	// }
-	// if (pid == 0)
-	// 	child_process();
-	// waitpid(pid, NULL, 0);
-
-	// if (pid == 0)
-	// {
-	// 	//Child process (cmd)
-	// 	in_file = open(argv[1], O_RDONLY);
-	// 	dup2(in_file, STDIN_FILENO);
-	// 	// if(dup2(fd[1], STDOUT_FILENO) == -1)
-	// 	// 	return (EXIT_FAILURE + 2);
-	// 	close(fd[0]);
-	// 	close(fd[1]);
-	// 	close(in_file);
-	// 	cmd = get_cmd(argv[2], env);
-	// 	int i = -1;
-	// 	while (cmd[++i])
-	// 		printf(">%s\n", cmd[i]);
-	// 	if(execve(cmd[0], &cmd[1], env) == -1)  // or NULL ??
-	// 	{	
-	// 		perror("execve");
-	// 		return (EXIT_FAILURE + 4);
-	// 	}
-	// }
-	// pid1 = fork();
-	// if (pid1 == 0)
-	// {
-	// 	char *str;
-	// 	while (read(fd[0], &str, 1000) >= 0)
-	// 		printf("%s", str);
-	// 	// cmd = get_cmd(argv[3], env);
-	// 	out_file = open(argv[4], O_RDWR | O_CREAT, 0777); // O_WRONLY ??
-	// 	// if (dup2(fd[0], STDIN_FILENO) == -1)
-	// 	// 	return (EXIT_FAILURE + 3);
-	// 	// close(fd[0]);
-	// 	// if (dup2(out_file, STDOUT_FILENO) == -1)
-	// 	// 	return (EXIT_FAILURE + 4);
-	// 	// close(fd[1]);
-	// 	// close(out_file);
-	// 	// if (execve(cmd[0], &cmd[1], env) == -1) // or NULL ??
-	// 	// {	
-	// 	// 	perror("execve");
-	// 	// 	return (EXIT_FAILURE + 4);
-	// 	// }
-	// }
-	// //Parent process
-	// close(fd[0]);
-	// close(fd[1]);
-	// waitpid(pid, NULL, 0);
-	// waitpid(pid1, NULL, 0);
-	// return (EXIT_SUCCESS);
 }

@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/18 05:56:05 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/19 23:20:28 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ char	*get_path(char *cmd, char **env)
 	while (base[++i])
 	{
 		temp = ft_strjoin(base[i], "/");
-		path = ft_strjoin(temp, "/");
+		path = ft_strjoin(temp, cmd);
 		free(temp);
 		if (access(path, X_OK) == 0)
 		{
@@ -44,76 +44,93 @@ char	*get_path(char *cmd, char **env)
 	free_matrix(base);
 	return (NULL);
 }
-// fare funzione ft_dup2 per accorciare righe gestione errori
+
+void	ft_dup2(int *fd, int arg)
+{
+	if(dup2(*fd, arg) == -1)
+			exit(1); // gestione errore
+		close(*fd);
+}
+
+// casi:
+// 	1.is_here_doc && pos ==3(primo) 
+// 		>leggere da STDOUT    
+// 		>scrivere in fd[1] /
+// 	2.is_here_doc && pos ==4(ultimo)
+// 		>leggere in fd[0] -
+// 		>scrivere in fileout ?
+// 	3.!is_here_doc && pos ==2(primo) 
+// 		>leggere da filein
+// 		>scrivere in fd[1] /
+// 	4.!is_here_doc && pos == file->argc -1(ultimo)
+// 		>leggere da fd[0] -
+// 		>scrivere in fileout ?
+// 	5.!is_here_doc && (pos > 2 && pos < file->argc -1) (n-esimo)  
+// 		>leggere da fd[0] 
+// 		>scrivere in fd[1] /
 void	set_fd_bonus(t_file *file, int pos)
 {
-	// set output in out.txt > vale sia per here_doc(==4) che non
-	if (pos == (file->argc -1))
-	{
-		if(dup2(file->fileout, STDOUT_FILENO) == -1)
-			exit(1); //set errore dup
-		close(file->fd[1]);
-		if(dup2(file->fd[0], STDIN_FILENO) == -1)
-			exit(1);
-		close(file->fd[0]);
-	} // DA QUI IN POI TROVARE PATTERN PER ACCORCIARE!
-	// PRIMO && HERE_DOC | leggere da STDIN  mandare in fd[1]-> passo il char **testo per execve
 	if (file->is_heredoc && pos == 3)
 	{
 		close(file->fd[0]);
-		if(dup2(file->fd[1], STDOUT_FILENO) == -1)
-			exit(1); // gestione errore
-		close(file->fd[1]);
-		//adesso da output in fd[1] (perche stdout == fd[1])
+		ft_dup2(&file->fd[1], STDIN_FILENO);
 	}
-	if (!file->is_heredoc && pos == 3) // PRIMO && !HERE_DOC | leggere da in.txt  mandare in fd[1]-> passo il char **testo per execve
-	{
-		lose(file->fd[0]);
-		if(dup2(file->fd[1], STDOUT_FILENO) == -1)
-			exit(1); // gestione errore
-		close(file->fd[1]);
-	}
-	if (!file->is_heredoc && pos != (file->argc -1)) // NON PRIMO NON ULTIMO && !HERE_DOC | leggere da fd[0] mandare in fd[1]
+	else if (file->is_heredoc && pos == 4)
 	{
 		close(file->fd[1]);
-		if(dup2(file->fd[0], STDIN_FILENO) == -1)
-			exit(1);
-		if(dup2(file->fd[1], STDOUT_FILENO) == -1)
-			exit(1); 
+		close(file->filein);
+		ft_dup2(&file->fd[0], STDOUT_FILENO);
+		ft_dup2(&file->fileout, STDIN_FILENO);
+	}
+	else if (!file->is_heredoc && pos == 2)
+	{
+		close(file->fd[0]);
+		close(file->fileout);
+		ft_dup2(&file->filein, STDIN_FILENO);
+		ft_dup2(&file->fd[1], STDOUT_FILENO);
+	}
+	else if (!file->is_heredoc && pos == file->argc -1)
+	{
+		close(file->fd[1]);
+		close(file->filein);
+		ft_dup2(&file->fd[0], STDIN_FILENO);
+		ft_dup2(&file->fileout, STDOUT_FILENO);
+	}
+	else if (!file->is_heredoc && (pos > 2 && pos < file->argc -1))
+	{
+		close(file->filein);
+		close(file->fileout);
+		ft_dup2(&file->fd[0], STDIN_FILENO);
+		ft_dup2(&file->fd[1], STDOUT_FILENO);
 	}
 }
-
 
 // fd[0] - read
 // fd[1] - write
 void	set_fd(t_file *file, int pos)
 {
-	if (file->is_bonus )
+	if (file->is_bonus)
 		set_fd_bonus(file, pos);
-	// PRIMO && HERE_DOC | leggere da STDIN -> passo il char **testo per execve
-	if (file->is_bonus && file->is_heredoc && pos == 3)
+	else if (!file->is_bonus && pos == 2)
 	{
 		close(file->fd[0]);
-		dup2(file->fd[1], STDOUT_FILENO);
-		close(file->fd[1]);
-		//adesso da output in fd[1] (perche stdout == fd[1])
+		close(file->fileout);
+		ft_dup2(&file->filein, STDIN_FILENO);
+		ft_dup2(&file->fd[1], STDOUT_FILENO);
 	}
-	// BONUS , ULTIMO CMD -> STDOUT (APPEND) in file
-	else if (file->is_bonus && pos == (file->argc - 1))
+	else if (!file->is_bonus && pos == 3)
 	{
-
-	}
-	// BONUS, NON HERE_DOC, NON ULTIMO CMD(n-esimo)
-	else if (file->is_bonus && !file->is_heredoc && pos != (file->argc - 1))
-	{
-
+		close(file->fd[0]);
+		close(file->filein);
+		ft_dup2(&file->fd[1], STDIN_FILENO);
+		ft_dup2(&file->fileout, STDOUT_FILENO);
 	}
 
 }
 
 void	set_bonus(int argc, char **argv, t_file *file)
 {
-	if (argv[1] == "here_doc")
+	if (!ft_strncmp(argv[1], "here_doc", ft_strlen(argv[1])))
 	{
 		file->filein = -2;
 		file->fileout = open(argv[argc - 1], O_WRONLY, O_CREAT | O_APPEND, 0777);
@@ -163,6 +180,7 @@ void	child_process(char **argv, int pos, char **env, t_file *file)
 	}
 	if (pid == 0)
 	{
+		printf(">pos_SON:%d(pid:%d)\n",pos,getpid());
 		file->cmd = get_cmd(argv, pos);
 		file->path = get_path(file->cmd[0], env);
 		if (!file->path)
@@ -178,5 +196,12 @@ void	child_process(char **argv, int pos, char **env, t_file *file)
 		}
 	}
 	else
+	{
+		printf(">pos_FATHER:%d(pid:%d)\n",pos,getpid());
+		close(file->fd[0]);
+		close(file->fd[1]);
+		// close(file->filein);
+		// close(file->fileout);
 		waitpid(pid, NULL, 0);
+	}
 }
