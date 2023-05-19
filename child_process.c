@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/19 23:20:28 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/20 01:01:35 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,15 +148,9 @@ void	set_bonus(int argc, char **argv, t_file *file)
 //V2 SEPARAZIONE BONUS & NON
 void	setup_files(int argc, char **argv, t_file *file)
 {
-
-	if (pipe(file->fd) == -1)
-	{
-		perror("pipe");
-		exit(EXIT_FAILURE);
-	}
 	if (file->is_bonus)
 		set_bonus(argc, argv, file);
-	else
+	if (!file->is_bonus)
 	{
 		file->filein = open(argv[1], O_RDONLY);  //se non esiste file di input?? "zsh: no such file or directory: in3.txt"
 		file->fileout = open(argv[argc - 1], O_WRONLY, O_CREAT, 0777);
@@ -172,6 +166,13 @@ void	setup_files(int argc, char **argv, t_file *file)
 void	child_process(char **argv, int pos, char **env, t_file *file)
 {
 	pid_t	pid;
+	int		fd[2];
+
+	if (pipe(fd) == -1)
+	{
+		perror("pipe");
+		exit(EXIT_FAILURE);
+	}
 	pid = fork();
 	if (fork() == -1)
 	{
@@ -197,11 +198,9 @@ void	child_process(char **argv, int pos, char **env, t_file *file)
 	}
 	else
 	{
-		printf(">pos_FATHER:%d(pid:%d)\n",pos,getpid());
-		close(file->fd[0]);
-		close(file->fd[1]);
 		// close(file->filein);
 		// close(file->fileout);
 		waitpid(pid, NULL, 0);
+		printf(">pos_FATHER:%d(pid:%d)\n",pos,getpid());
 	}
 }

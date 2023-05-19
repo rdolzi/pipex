@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/19 23:21:48 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/20 01:18:47 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@
 // nella struttura conservare STDIN/OUT ??
 int main(int argc, char **argv, char **env)
 {
-	int		i;
 	t_file	file;
 
 	if (argc != 5) // se here_doc non in bonus?
@@ -72,12 +71,17 @@ int main(int argc, char **argv, char **env)
 	file.is_bonus = 0;
 	file.idx = 2;
 	setup_files(argc, argv, &file);
-	i = -1;
-	while (++i < (argc - 3 - file.is_heredoc))
+	(void)env;
+	while ((file.argc--) - 3 - file.is_heredoc > 0)
 	{
+		printf("file.argc:%d\n",file.argc);
+		printf("file.is_heredoc:%d\n",file.is_heredoc);
+		printf("argc - 3 - file.is_heredoc:%d\n", file.argc - 3 - file.is_heredoc);
 		printf("\nCIAO(pid:%d)\n",getpid());
 		child_process(argv, file.idx++, env, &file); //sostituire pos con file.idx++
 	}
+	// close(file.fd[0]);
+	// close(file.fd[1]);
 	// close(file.filein) close(file.filein) ??
 	return (EXIT_SUCCESS);
 }
