@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/20 21:09:04 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/22 01:22:23 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,7 @@ void	set_fd(t_file *file, int pos)
 		set_fd_bonus(file, pos);
 	else if (!file->is_bonus && pos == 2)
 	{
+		printf("is child 2 && !bonus\n");
 		close(file->fd[0]);
 		close(file->fileout);
 		ft_dup2(&file->filein, STDIN_FILENO);
@@ -120,9 +121,10 @@ void	set_fd(t_file *file, int pos)
 	}
 	else if (!file->is_bonus && pos == 3)
 	{
-		close(file->fd[0]);
+		printf("is child 3 && !bonus\n");
+		close(file->fd[1]);
 		close(file->filein);
-		ft_dup2(&file->fd[1], STDIN_FILENO);
+		ft_dup2(&file->fd[0], STDIN_FILENO);
 		ft_dup2(&file->fileout, STDOUT_FILENO);
 	}
 
@@ -168,40 +170,58 @@ void	setup_files(int argc, char **argv, t_file *file)
 	}
 }
 
-void	child_process(char **argv, int pos, char **env, t_file *file)
+void	child_process(char **argv, char **env, t_file *file)
 {
+	pid_t pid;
 	(void)env;
 	(void)argv;
-	pos = 5;
-	// int		fd[2];
+	// int fd[2];
 
 	// if (pipe(fd) == -1)
 	// {
 	// 	perror("pipe");
 	// 	exit(EXIT_FAILURE);
 	// }
-	// if (pid == 0)
-	// {
-		file->fd[0] = 50;
-		file->fd[1] = 51;
-		printf("CHILD PROCESS ID: %d\n", getpid());
-		printf("\nin child(IDX:%d)..\n", file->idx);
+	printf("AGAIN%d\n", file->idx);
+	pid = fork();
+	if (pid == 0)
+	{
+		printf("Hello world!%d\n", file->idx);
+		file->cmd = get_cmd(argv, file->idx);
+		file->path = get_path(file->cmd[0], env);
+		if (!file->path)
+		{
+			free_matrix(file->cmd);
+			exit(5); // gestire messaggio errore "zsh: command not found: ciao" // check chiusura fd
+		}
+		set_fd(file, file->idx);
+		if (execve(file->path, file->cmd, env) == -1) // or NULL ??
+		{
+			perror("execve");
+			exit(EXIT_FAILURE + 4);
+		}
+		printf("\n--IN CHILD %d FILE--\n", file->idx);
 		print_process(file);
 		exit(0);
+	}
+	else
+	{
+		close(file->fd[0]);
+		close(file->fd[1]);
+		waitpid(pid, NULL, 0);
+	}
+	// (void)env;
+	// (void)argv;
+	
+	// // if (pid == 0)
+	// // {
+	// 	file->fd[0] = 50;
+	// 	file->fd[1] = 51;
+	// 	printf("CHILD PROCESS ID: %d\n", getpid());
+	// 	printf("\nin child(IDX:%d)..\n", file->idx);
+	// 	print_process(file);
+	// 	exit(0);
 		// 	printf(">pos_SON:%d(pid:%d)\n",pos,getpid());
-		// 	file->cmd = get_cmd(argv, pos);
-		// 	file->path = get_path(file->cmd[0], env);
-		// 	if (!file->path)
-		// 	{
-		// 		free_matrix(file->cmd);
-		// 		exit(5); // gestire messaggio errore "zsh: command not found: ciao" // check chiusura fd
-		// 	}
-		// 	set_fd(file, pos);
-		// 	if(execve(file->path, file->cmd, env) == -1)  // or NULL ??
-		// 	{
-		// 		perror("execve");
-		// 		exit (EXIT_FAILURE + 4);
-		// 	}
 	// }
 	// else
 	// {

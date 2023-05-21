@@ -27,7 +27,7 @@ typedef struct s_file
 
 void	free_matrix(char **matrix);
 char	**get_cmd(char **argv, int pos);
-void	child_process(char **argv, int pos, char **env, t_file *file);
+void	child_process(char **argv, char **env, t_file *file);
 void	setup_files(int argc, char **argv, t_file *file);
 void	print_process(t_file *file);
 #endif
