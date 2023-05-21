@@ -6,11 +6,25 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/16 00:56:36 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/18 04:08:08 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/20 18:47:42 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+
+void	print_process(t_file *file)
+{
+	printf("\n---FILE---\n");
+	printf("file->idx:%d\n", file->idx);
+	printf("file->fd[0]:%d\n", file->fd[0]);
+	printf("file->fd[1]:%d\n", file->fd[1]);
+	printf("file->filein:%d\n", file->filein);
+	printf("file->fileout:%d\n", file->fileout);
+	printf("file->is_bonus:%d\n", file->is_bonus);
+	printf("file->elements:%d\n", file->elements);
+	printf("file->is_heredoc:%d\n", file->is_heredoc);
+	printf("file->path:%s\n", file->path);
+}
 
 void	free_matrix(char **matrix)
 {

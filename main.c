@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/20 01:18:47 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/20 21:29:25 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,29 +57,52 @@
 // ./pipex file1 cmd1 cmd2 file2 > argc=5 (cmds=2)   >inf RDONLY >outf 0_WRITE | O_CREAT
 // ./pipex file1 cmd1 cmd2 ... cmdN file2 > argc = n (cmds=n-3)  >inf RDONLY >outf 0_WRITE | O_CREAT
 // ./pipex here_doc LIMITER cmd cmd1 file > argc=6 >inf RDONLY >outf 0_WRITE | O_CREAT
-// nella struttura conservare STDIN/OUT ??
+// nella struttura conservare STDIN/OUT ?? 
+// utilizzare env in struct?
 int main(int argc, char **argv, char **env)
 {
+	pid_t	pid;
 	t_file	file;
 
-	if (argc != 5) // se here_doc non in bonus?
+	if (argc != 5)
 	{
 		write(2, &"Error\n", 6);
 		return (EXIT_FAILURE  + 1);
 	}
-	file.argc = argc;
+	file.elements = argc - 1;
 	file.is_bonus = 0;
 	file.idx = 2;
 	setup_files(argc, argv, &file);
-	(void)env;
-	while ((file.argc--) - 3 - file.is_heredoc > 0)
+	printf("PRE PROCESS ID: %d\n", getpid());
+	printf("SETUP\n");
+	print_process(&file);
+	pid = fork();
+	printf("FORK RETURNED: %d\n", pid);
+	if (fork() == -1)
 	{
-		printf("file.argc:%d\n",file.argc);
-		printf("file.is_heredoc:%d\n",file.is_heredoc);
-		printf("argc - 3 - file.is_heredoc:%d\n", file.argc - 3 - file.is_heredoc);
-		printf("\nCIAO(pid:%d)\n",getpid());
-		child_process(argv, file.idx++, env, &file); //sostituire pos con file.idx++
+		perror("fork");
+		exit(EXIT_FAILURE);
 	}
+	while ((file.elements - file.idx - file.is_heredoc) > 0)
+	{
+		printf("PRE-PROCESS, idx: %d\n", file.idx);
+		if (pid == 0)
+			child_process(argv, file.idx, env, &file); //sostituire pos con file.idx++
+		else
+		{
+			waitpid(pid, NULL, 0);
+			file.idx++;
+			pid = fork();
+			file.fd[0] = 100;
+			file.fd[1] = 101;
+			printf("IN FATHER>PROCESS ID: %d\n", getpid());
+			printf("\nFather: child completed!..\n");
+			print_process(&file);
+			
+		}
+	}
+	// printf("\nout while\n");
+	// print_process(&file);
 	// close(file.fd[0]);
 	// close(file.fd[1]);
 	// close(file.filein) close(file.filein) ??

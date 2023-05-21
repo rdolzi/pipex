@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/07 09:55:10 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/18 00:33:51 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/20 21:46:52 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,60 +194,80 @@ extern int errno;
 //     execve("./exe", argv, env);
 // }
 
-int main(int argc, char **argv, char **env)
-{
-    // fd[0] - read
-    // fd[1] - write
+// int main(int argc, char **argv, char **env)
+// {
+//     // fd[0] - read
+//     // fd[1] - write
     
-    int i = -1;
-    int fd[2];
-    if (pipe(fd) == -1)
-        return (2);
-    int pid = fork();
-    if (pid == -1)
-        return (1);
+//     int i = -1;
+//     int fd[2];
+//     if (pipe(fd) == -1)
+//         return (2);
+//     int pid = fork();
+//     if (pid == -1)
+//         return (1);
   
 
-    // int file = open("file.txt", O_RDWR| O_CREAT, 0777);
-    // char *env[] = {"env1", "env2", "env3", NULL};
-    //execve("./exe", argv, env);
-    if (pid == 0)
-    {
-        char *arg[] = {"/sbin/ping", "-c", "5", "google.com" , NULL};
-        close(fd[0]);
+//     // int file = open("file.txt", O_RDWR| O_CREAT, 0777);
+//     // char *env[] = {"env1", "env2", "env3", NULL};
+//     //execve("./exe", argv, env);
+//     if (pid == 0)
+//     {
+//         char *arg[] = {"/sbin/ping", "-c", "5", "google.com" , NULL};
+//         close(fd[0]);
        
-        int f2 = dup2(fd[1] ,STDOUT_FILENO);
-        close(fd[1]);
-        // printf("f2:%d\n", f2);
-        if(execve("/sbin/ping", arg, env) == -1)
-            return (3);
-    }
+//         int f2 = dup2(fd[1] ,STDOUT_FILENO);
+//         close(fd[1]);
+//         // printf("f2:%d\n", f2);
+//         if(execve("/sbin/ping", arg, env) == -1)
+//             return (3);
+//     }
 
 
    
-    int pid2 = fork();
+//     int pid2 = fork();
 
-    if (pid2 == 0)
-    {
-        // Child process (grep)
-        char *arg2[] = {"/usr/bin/grep", "round-trip", NULL};
-        int fd2 = dup2(fd[0], STDIN_FILENO);
-        // close(fd[0]);
-        close(fd[1]);
-        if (execve("/usr/bin/grep", arg2, env) == -1)
-            return (4);
-    }
-    close(fd[0]);
-    close(fd[1]);
-    waitpid(pid, NULL, 0);
-    // waitpid(pid2, NULL, 0);
-    // waitpid(pid2, NULL, 0);
-    // char *str;
-    // int i = read(fd[0],str, 1000);
-    // str[i] = 0;
-    // printf("%s", str);
-    // close(fd[0]);
-    // close(fd[1]);
+//     if (pid2 == 0)
+//     {
+//         // Child process (grep)
+//         char *arg2[] = {"/usr/bin/grep", "round-trip", NULL};
+//         int fd2 = dup2(fd[0], STDIN_FILENO);
+//         // close(fd[0]);
+//         close(fd[1]);
+//         if (execve("/usr/bin/grep", arg2, env) == -1)
+//             return (4);
+//     }
+//     close(fd[0]);
+//     close(fd[1]);
+//     waitpid(pid, NULL, 0);
+//     // waitpid(pid2, NULL, 0);
+//     // waitpid(pid2, NULL, 0);
+//     // char *str;
+//     // int i = read(fd[0],str, 1000);
+//     // str[i] = 0;
+//     // printf("%s", str);
+//     // close(fd[0]);
+//     // close(fd[1]);
         
-}
+// }
 
+
+
+int main()
+{
+    pid_t pid;
+    int i = 0;
+
+    while (i++ < 2)
+    {
+        printf("AGAIN%d\n",i);
+        pid = fork();
+        if (pid == 0)
+        {
+            printf("Hello world%d\n",i);
+            exit(0);
+        }
+        else
+            waitpid(pid, NULL, 0);
+    }
+}
