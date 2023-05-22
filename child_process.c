@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/22 01:22:23 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/22 02:07:59 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,36 +72,41 @@ void	set_fd_bonus(t_file *file, int pos)
 {
 	if (file->is_heredoc && pos == 3)
 	{
-		close(file->fd[0]);
-		ft_dup2(&file->fd[1], STDIN_FILENO);
+			printf("is doc && is child 3 && bonus\n");
+			close(file->fd[0]);
+			ft_dup2(&file->fd[1], STDIN_FILENO);
 	}
 	else if (file->is_heredoc && pos == 4)
 	{
-		close(file->fd[1]);
-		close(file->filein);
-		ft_dup2(&file->fd[0], STDOUT_FILENO);
-		ft_dup2(&file->fileout, STDIN_FILENO);
+			printf("is doc && is child 4 && bonus\n");
+			close(file->fd[1]);
+			close(file->filein);
+			ft_dup2(&file->fd[0], STDOUT_FILENO);
+			ft_dup2(&file->fileout, STDIN_FILENO);
 	}
 	else if (!file->is_heredoc && pos == 2)
 	{
-		close(file->fd[0]);
-		close(file->fileout);
-		ft_dup2(&file->filein, STDIN_FILENO);
-		ft_dup2(&file->fd[1], STDOUT_FILENO);
+			printf("is !doc && is child 2 && bonus\n");
+			close(file->fd[0]);
+			close(file->fileout);
+			ft_dup2(&file->filein, STDIN_FILENO);
+			ft_dup2(&file->fd[1], STDOUT_FILENO);
 	}
-	else if (!file->is_heredoc && pos == file->elements)
+	else if (!file->is_heredoc && pos == file->elements - 1)
 	{
-		close(file->fd[1]);
-		close(file->filein);
-		ft_dup2(&file->fd[0], STDIN_FILENO);
-		ft_dup2(&file->fileout, STDOUT_FILENO);
+			printf("is !doc && is child = file->elements:%d\n", file->elements);
+			close(file->fd[1]);
+			close(file->filein);
+			ft_dup2(&file->fd[0], STDIN_FILENO);
+			ft_dup2(&file->fileout, STDOUT_FILENO);
 	}
 	else if (!file->is_heredoc && (pos > 2 && pos < file->elements))
 	{
-		close(file->filein);
-		close(file->fileout);
-		ft_dup2(&file->fd[0], STDIN_FILENO);
-		ft_dup2(&file->fd[1], STDOUT_FILENO);
+			printf("is !doc && is child >2 && < file->elements:%d\n", file->elements);
+			close(file->filein);
+			close(file->fileout);
+			ft_dup2(&file->fd[0], STDIN_FILENO);
+			ft_dup2(&file->fd[1], STDOUT_FILENO);
 	}
 }
 
@@ -127,7 +132,6 @@ void	set_fd(t_file *file, int pos)
 		ft_dup2(&file->fd[0], STDIN_FILENO);
 		ft_dup2(&file->fileout, STDOUT_FILENO);
 	}
-
 }
 
 void	set_bonus(int argc, char **argv, t_file *file)
@@ -136,7 +140,7 @@ void	set_bonus(int argc, char **argv, t_file *file)
 	{
 		file->filein = -2;
 		file->fileout = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0777);
-		file->idx = 3;
+		file->idx = 2;
 		file->is_heredoc = 1;
 	}
 	else
@@ -177,9 +181,8 @@ void	child_process(char **argv, char **env, t_file *file)
 	(void)argv;
 	// int fd[2];
 
-	// if (pipe(fd) == -1)
+	// if (pipe(file->fd) == -1)
 	// {
-	// 	perror("pipe");
 	// 	exit(EXIT_FAILURE);
 	// }
 	printf("AGAIN%d\n", file->idx);
@@ -195,6 +198,7 @@ void	child_process(char **argv, char **env, t_file *file)
 			exit(5); // gestire messaggio errore "zsh: command not found: ciao" // check chiusura fd
 		}
 		set_fd(file, file->idx);
+		printf(">>!%d\n", file->idx);
 		if (execve(file->path, file->cmd, env) == -1) // or NULL ??
 		{
 			perror("execve");
@@ -206,31 +210,7 @@ void	child_process(char **argv, char **env, t_file *file)
 	}
 	else
 	{
-		close(file->fd[0]);
 		close(file->fd[1]);
 		waitpid(pid, NULL, 0);
 	}
-	// (void)env;
-	// (void)argv;
-	
-	// // if (pid == 0)
-	// // {
-	// 	file->fd[0] = 50;
-	// 	file->fd[1] = 51;
-	// 	printf("CHILD PROCESS ID: %d\n", getpid());
-	// 	printf("\nin child(IDX:%d)..\n", file->idx);
-	// 	print_process(file);
-	// 	exit(0);
-		// 	printf(">pos_SON:%d(pid:%d)\n",pos,getpid());
-	// }
-	// else
-	// {
-	// 	file->fd[0] = 100;
-	// 	file->fd[1] = 101;
-	// 	// close(file->filein);
-	// 	// close(file->fileout);
-	// 	printf("FATHER PROCESS ID: %d\n", getpid());
-	// 	printf("\nFather: child completed!..\n");
-	// 	print_process(file);
-	// }
 }

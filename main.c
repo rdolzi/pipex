@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/22 01:18:38 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/22 02:03:26 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,43 +61,39 @@
 // utilizzare env in struct?
 
 
-int main(int argc, char **argv, char **env)
-{
-	t_file file;
-	
-	if (argc != 5)
-	{
-		write(2, &"Error\n", 6);
-		return (EXIT_FAILURE + 1);
-	}
-	file.elements = argc - 1;
-	file.is_bonus = 0;
-	file.idx = 1;
-	if (pipe(file.fd) == -1)
-	{
-		perror("pipe");
-		exit(EXIT_FAILURE);
-	}
-	setup_files(argc, argv, &file);
-	while ((file.elements - file.idx++ - file.is_heredoc) > 1)
-			child_process(argv, env, &file);
-}
-
-//MAIN BONUS
 // int main(int argc, char **argv, char **env)
 // {
 // 	t_file file;
-
-// 	if (argc < 5)
+	
+// 	if (argc != 5)
 // 	{
-// 			write(2, &"Error\n", 6);
-// 			return (EXIT_FAILURE + 1);
+// 		write(2, &"Error\n", 6);
+// 		return (EXIT_FAILURE + 1);
 // 	}
 // 	file.elements = argc - 1;
-// 	file.is_bonus = 1;
+// 	file.is_bonus = 0;
 // 	file.idx = 1;
-// 	setup_files(argc, argv, &file);
 
+// 	setup_files(argc, argv, &file);
 // 	while ((file.elements - file.idx++ - file.is_heredoc) > 1)
 // 			child_process(argv, env, &file);
 // }
+
+//MAIN BONUS
+int main(int argc, char **argv, char **env)
+{
+	t_file file;
+
+	if (argc < 5)
+	{
+			write(2, &"Error\n", 6);
+			return (EXIT_FAILURE + 1);
+	}
+	file.elements = argc - 1;
+	file.is_bonus = 1;
+	file.idx = 1;
+	setup_files(argc, argv, &file);
+
+	while ((file.elements - file.idx++ - file.is_heredoc) > 1)
+			child_process(argv, env, &file);
+}
