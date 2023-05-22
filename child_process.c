@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/22 02:07:59 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/22 03:21:45 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,18 +173,11 @@ void	setup_files(int argc, char **argv, t_file *file)
 		exit(EXIT_FAILURE);
 	}
 }
-
+extern int errno;
 void	child_process(char **argv, char **env, t_file *file)
 {
 	pid_t pid;
-	(void)env;
-	(void)argv;
-	// int fd[2];
 
-	// if (pipe(file->fd) == -1)
-	// {
-	// 	exit(EXIT_FAILURE);
-	// }
 	printf("AGAIN%d\n", file->idx);
 	pid = fork();
 	if (pid == 0)
@@ -195,17 +188,19 @@ void	child_process(char **argv, char **env, t_file *file)
 		if (!file->path)
 		{
 			free_matrix(file->cmd);
-			exit(5); // gestire messaggio errore "zsh: command not found: ciao" // check chiusura fd
+			// ft_dup2(&file->fd[1], STDERR_FILENO);
+			perror("Path Error");
+			exit(5); 
 		}
 		set_fd(file, file->idx);
-		printf(">>!%d\n", file->idx);
-		if (execve(file->path, file->cmd, env) == -1) // or NULL ??
-		{
-			perror("execve");
-			exit(EXIT_FAILURE + 4);
-		}
 		printf("\n--IN CHILD %d FILE--\n", file->idx);
 		print_process(file);
+		if (execve(file->path, file->cmd, env) == -1) // or NULL ??
+		{
+			printf("AZZ");
+			perror("Command Error");
+			exit(EXIT_FAILURE + 4);
+		}
 		exit(0);
 	}
 	else

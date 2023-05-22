@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/22 02:03:26 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/22 03:20:48 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@
 // nella struttura conservare STDIN/OUT ?? 
 // utilizzare env in struct?
 
+// TODO:
+// leaks atExit rimane in running?
 
 // int main(int argc, char **argv, char **env)
 // {
@@ -93,7 +95,6 @@ int main(int argc, char **argv, char **env)
 	file.is_bonus = 1;
 	file.idx = 1;
 	setup_files(argc, argv, &file);
-
 	while ((file.elements - file.idx++ - file.is_heredoc) > 1)
 			child_process(argv, env, &file);
 }

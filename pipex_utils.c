@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/16 00:56:36 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/20 18:47:42 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/22 02:16:13 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 void	print_process(t_file *file)
 {
+	int i = -1;
 	printf("\n---FILE---\n");
 	printf("file->idx:%d\n", file->idx);
 	printf("file->fd[0]:%d\n", file->fd[0]);
@@ -24,6 +25,9 @@ void	print_process(t_file *file)
 	printf("file->elements:%d\n", file->elements);
 	printf("file->is_heredoc:%d\n", file->is_heredoc);
 	printf("file->path:%s\n", file->path);
+	while (file->cmd[++i])
+		printf("file->cmd[%d]:%s\n", i, file->cmd[i]);
+	printf("file->cmd[%d]:%s\n", i, file->cmd[i]);
 }
 
 void	free_matrix(char **matrix)

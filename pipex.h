@@ -9,7 +9,8 @@
 #include <unistd.h>
 //OPEN
 #include <fcntl.h>
-
+//STRERROR
+#include <string.h>
 //filein/fileout: -1 se errore open / -2 se non settato
 //is_heredoc: -1 se non si tratta del bonus
 typedef struct s_file
