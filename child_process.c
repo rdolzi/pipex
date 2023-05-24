@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/24 02:49:17 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/24 05:27:46 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,36 @@
 // 	return (ft_split(argv[pos], ' '));
 // }
 
+
+int		ft_here_doc(int *filein, char *limiter)
+{
+	char *str;
+	*filein = open("temp.txt", O_RDWR | O_CREAT  | O_TRUNC, 0777);
+	if (*filein == -1)
+	{
+		close(*filein);
+		perror("Open error");
+		exit (3);
+	}
+	while (1)
+	{
+		write(1,&"pipe heredoc>", 13);
+		str = get_next_line(0);
+		if (write(*filein, str, ft_strlen(str)) == -1)
+		{
+			perror("Write error");
+			exit(22);
+		}
+		if(!str)
+		{
+			if(unlink("./temp.txt") != 0)
+				perror("unlink error");
+		}
+		if (!ft_strncmp(str, limiter, ft_strlen(str) - 1))
+			break ;
+	}
+	return (*filein);
+}
 
 char	*get_path(char *cmd, char **env)
 {
@@ -94,8 +124,11 @@ void	child_process(char *str, char **env, int *fileout)
 	else
 	{
 		close(fd[1]);
+		//close (fd[0]);
+		// printf("fd[0]:%d\n", fd[0]);
+		// printf("str:%s\n",str);
 		ft_dup2(&fd[0],STDIN_FILENO); //chiude fd[0]
 		waitpid(pid, NULL, 0);
+		
 	}
 }
-

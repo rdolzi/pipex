@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/24 03:10:38 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/24 05:24:33 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,10 +108,10 @@ int main(int argc, char **argv, char **env)
 		write(2, &"Error\n", 6);
 		exit (1);
 	}
-	if (is_here_doc)  // caso here_doc
+	if (is_here_doc)
 	{
 		i = 3;
-		filein = 0; //ft_here_doc(&filein); crea filein
+		filein = ft_here_doc(&filein, argv[2]);
 		fileout = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0777);
 		if (fileout == -1)
 		{
@@ -122,6 +122,7 @@ int main(int argc, char **argv, char **env)
 	}
 	else
 	{
+		printf("ciao\n");
 		i = 2;
 		filein = open(argv[1], O_RDONLY, 0777);
 		if (filein == -1)
@@ -141,9 +142,6 @@ int main(int argc, char **argv, char **env)
 	while (i < argc - 2)
 		child_process(argv[i++], env, &fileout);
 	// if (is_here_doc)
-	//unlink();
-	while (1){}
+	// unlink("./temp.txt");
 	ft_execve(argv[i], env, &fileout);
-	
 }
-
