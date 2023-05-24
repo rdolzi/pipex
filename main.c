@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/22 03:20:48 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/24 03:10:38 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,44 +57,93 @@
 // ./pipex file1 cmd1 cmd2 file2 > argc=5 (cmds=2)   >inf RDONLY >outf 0_WRITE | O_CREAT
 // ./pipex file1 cmd1 cmd2 ... cmdN file2 > argc = n (cmds=n-3)  >inf RDONLY >outf 0_WRITE | O_CREAT
 // ./pipex here_doc LIMITER cmd cmd1 file > argc=6 >inf RDONLY >outf 0_WRITE | O_CREAT
-// nella struttura conservare STDIN/OUT ?? 
-// utilizzare env in struct?
+
 
 // TODO:
 // leaks atExit rimane in running?
 
+//MAIN NORMALE SENZA STRUCT > OK!
 // int main(int argc, char **argv, char **env)
 // {
-// 	t_file file;
-	
-// 	if (argc != 5)
+// 	int		filein;
+// 	int		fileout; 
+
+// 	if (argc < 5)
 // 	{
 // 		write(2, &"Error\n", 6);
-// 		return (EXIT_FAILURE + 1);
+// 		exit (EXIT_FAILURE);
 // 	}
-// 	file.elements = argc - 1;
-// 	file.is_bonus = 0;
-// 	file.idx = 1;
-
-// 	setup_files(argc, argv, &file);
-// 	while ((file.elements - file.idx++ - file.is_heredoc) > 1)
-// 			child_process(argv, env, &file);
+// 	filein = open(argv[1], O_RDONLY, 0777);
+// 	if (filein == -1)
+// 	{
+// 		perror("Open error");
+// 		exit (EXIT_FAILURE);
+// 	}
+// 	fileout = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+// 	if (fileout == -1)
+// 	{
+// 		close(filein);
+// 		perror("Open error");
+// 		exit (EXIT_FAILURE);
+// 	}
+// 	child_process(argv[2], env, &filein);
+// 	ft_execve(argv[3], env, &fileout);
 // }
 
-//MAIN BONUS
+// ./pipex file1 cmd1 cmd2 file2 > argc=5 (cmds=2)   >inf RDONLY >outf 0_WRITE | O_CREAT
+// ./pipex file1 cmd1 cmd2 ... cmdN file2 > argc = n (cmds=n-3)  >inf RDONLY >outf 0_WRITE | O_CREAT
+// ./pipex here_doc LIMITER cmd cmd1 file > argc=6 >inf RDONLY >outf 0_WRITE | O_CREAT
+
+//MAIN BONUS SENZA STRUCT
 int main(int argc, char **argv, char **env)
 {
-	t_file file;
+	int		i;
+	int		filein;
+	int		fileout; 
+	int		is_here_doc;
 
-	if (argc < 5)
+	is_here_doc = !ft_strncmp(argv[1], "here_doc", ft_strlen(argv[1]));
+	if (argc < 5 || (is_here_doc && argc != 6))
 	{
-			write(2, &"Error\n", 6);
-			return (EXIT_FAILURE + 1);
+		write(2, &"Error\n", 6);
+		exit (1);
 	}
-	file.elements = argc - 1;
-	file.is_bonus = 1;
-	file.idx = 1;
-	setup_files(argc, argv, &file);
-	while ((file.elements - file.idx++ - file.is_heredoc) > 1)
-			child_process(argv, env, &file);
+	if (is_here_doc)  // caso here_doc
+	{
+		i = 3;
+		filein = 0; //ft_here_doc(&filein); crea filein
+		fileout = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0777);
+		if (fileout == -1)
+		{
+			close(filein);
+			perror("Open error");
+			exit (3);
+		}
+	}
+	else
+	{
+		i = 2;
+		filein = open(argv[1], O_RDONLY, 0777);
+		if (filein == -1)
+		{
+			perror("Open error");
+			exit (2);
+		}
+		fileout = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+		if (fileout == -1)
+		{
+			close(filein);
+			perror("Open error");
+			exit (3);
+		}
+	}
+	ft_dup2(&filein, STDIN_FILENO); //chiuso filein // manca fileout
+	while (i < argc - 2)
+		child_process(argv[i++], env, &fileout);
+	// if (is_here_doc)
+	//unlink();
+	while (1){}
+	ft_execve(argv[i], env, &fileout);
+	
 }
+
