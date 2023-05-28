@@ -12,13 +12,8 @@
 //STRERROR
 #include <string.h>
 
-
-
-void	free_matrix(char **matrix);
 char	**get_cmd(char **argv, int pos);
 void	child_process(char *str, char **env, int *fileout);
-//void	setup_files(int argc, char **argv, t_file *file);
-//void	print_process(t_file *file);
 void	ft_execve(char *str, char **env);
 void	ft_dup2(int *fd, int arg);
 #endif

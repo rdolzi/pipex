@@ -2,7 +2,6 @@ NAME = pipex
 LIBFT = libft
 
 SRCS = main.c \
-	   pipex_utils.c \
 	   child_process.c \
 
 
@@ -28,4 +27,4 @@ fclean: clean
 	
 re: fclean all
 
-.PHONY: all clean fclean re bonus
+.PHONY: all clean fclean re

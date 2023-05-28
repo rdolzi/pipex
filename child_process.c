@@ -6,17 +6,21 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/28 00:30:44 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/28 11:41:27 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-// char	**get_cmd(char **argv, int pos)
-// {
-// 	return (ft_split(argv[pos], ' '));
-// }
+void free_matrix(char **matrix)
+{
+	int i;
 
+	i = -1;
+	while (matrix[++i])
+		free(matrix[i]);
+	free(matrix);
+}
 
 char	*get_path(char *cmd, char **env)
 {
@@ -49,7 +53,7 @@ char	*get_path(char *cmd, char **env)
 void	ft_dup2(int *fd, int arg)
 {
 	if(dup2(*fd, arg) == -1)
-			exit(1); // gestione errore
+			exit(1);
 	close(*fd);
 }
 
@@ -67,9 +71,6 @@ void	ft_execve(char *str, char **env)
 		perror("Path Error");
 		exit(20); 
 	}
-	// printf("%s",path);
-	// printf("%s", cmd[0]);
-	// printf("%s", cmd[1]);
 	if (execve(path, cmd, env) == -1)
 	{
 		perror("Command Error");
