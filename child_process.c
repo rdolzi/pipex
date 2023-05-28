@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/28 11:41:27 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/28 12:51:43 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,7 @@ void	ft_execve(char *str, char **env)
 	char	*path;
 
 	cmd = ft_split(str, ' ');
-	path = get_path(cmd[0], env);
-	//ft_dup2(out_fd, STDOUT_FILENO); 
+	path = get_path(cmd[0], env); 
 	if (!path)
 	{
 		free_matrix(cmd);
@@ -93,18 +92,13 @@ void	child_process(char *str, char **env, int *fileout)
 	{
 		close(fd[0]);
 		close(*fileout);
-		if (dup2(fd[1], STDOUT_FILENO) == -1)
-			exit(1);
-		close(fd[1]);
+		ft_dup2(&fd[1],STDOUT_FILENO);
 		ft_execve(str, env);
 	}
 	else
 	{
 		close(fd[1]);
-		if (dup2(fd[0], STDIN_FILENO) == -1)
-			exit(1);
-		close(fd[0]);
+		ft_dup2(&fd[0], STDIN_FILENO);
 		waitpid(pid, NULL, 0);
 	}
 }
-

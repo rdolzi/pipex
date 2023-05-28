@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/28 11:47:57 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/28 12:52:14 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@
 // 	ft_execve(argv[3], env);
 // }
 
+// PROBLEMA: Path error non chiude fd
 int main(int argc, char **argv, char **env)
 {
 	int i;
@@ -88,10 +89,7 @@ int main(int argc, char **argv, char **env)
 			exit(3);
 		}
 	}
-	if (dup2(filein, STDIN_FILENO) == -1)
-		exit(1);
-	close(filein);
-	// ft_dup2(&filein, STDIN_FILENO); //chiuso filein // manca fileout
+	ft_dup2(&filein, STDIN_FILENO);
 	while (i < argc - 2)
 		child_process(argv[i++], env, &fileout);
 	// if (is_here_doc)
@@ -99,11 +97,8 @@ int main(int argc, char **argv, char **env)
 	int test = fork();
 	if (test == 0)
 	{
-		if (dup2(fileout, STDOUT_FILENO) == -1)
-			exit(1);
-		close(fileout);
+		ft_dup2(&fileout, STDOUT_FILENO);
 		ft_execve(argv[i], env);
 	}
 	waitpid(test, NULL, 0);
-	printf("CIAO");
 }
