@@ -12,6 +12,14 @@
 //STRERROR
 #include <string.h>
 
+typedef struct s_setup
+{
+    int i;
+    int filein;
+    int fileout;
+    int is_here_doc;
+}   t_setup;
+
 char	**get_cmd(char **argv, int pos);
 void	child_process(char *str, char **env, int *fileout);
 void	ft_execve(char *str, char **env);
