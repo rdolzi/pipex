@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/28 12:51:43 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/29 16:15:04 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ char	*get_path(char *cmd, char **env)
 		i++;
 	base = ft_split((env[i] + 5), ':');
 	i = -1;
-	while (base[++i])
+	while (base && base[++i])
 	{
 		temp = ft_strjoin(base[i], "/");
 		path = ft_strjoin(temp, cmd);
@@ -44,8 +44,8 @@ char	*get_path(char *cmd, char **env)
 			free_matrix(base);
 			return (path);
 		}
+		free(path);
 	}
-	free(path);
 	free_matrix(base);
 	return (NULL);
 }
