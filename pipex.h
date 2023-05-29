@@ -1,16 +1,16 @@
 #ifndef PIPEX_H
 # define PIPEX_H
 
-#include "Libft/libft.h"
-#include <stdio.h>
+# include "Libft/libft.h"
+# include <stdio.h>
 //EXIT_SUCCESS
-#include <stdlib.h>
+# include <stdlib.h>
 //WRITE - PIPE - DUP2 - EXECVE - ACCESS
-#include <unistd.h>
+# include <unistd.h>
 //OPEN
-#include <fcntl.h>
+# include <fcntl.h>
 //STRERROR
-#include <string.h>
+# include <string.h>
 
 #ifndef BUFFER_SIZE
 # define BUFFER_SIZE 1

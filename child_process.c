@@ -6,15 +6,15 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/29 16:15:04 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/29 23:28:47 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void free_matrix(char **matrix)
+void	free_matrix(char **matrix)
 {
-	int i;
+	int	i;
 
 	i = -1;
 	while (matrix[++i])
@@ -28,7 +28,7 @@ char	*get_path(char *cmd, char **env)
 	char	*temp;
 	char	*path;
 	char	**base;
-	
+
 	i = 0;
 	while (ft_strncmp(env[i], "PATH=", 5))
 		i++;
@@ -49,11 +49,10 @@ char	*get_path(char *cmd, char **env)
 	free_matrix(base);
 	return (NULL);
 }
-
 void	ft_dup2(int *fd, int arg)
 {
-	if(dup2(*fd, arg) == -1)
-			exit(1);
+	if (dup2(*fd, arg) == -1)
+		exit(1);
 	close(*fd);
 }
 
@@ -63,7 +62,7 @@ void	ft_execve(char *str, char **env)
 	char	*path;
 
 	cmd = ft_split(str, ' ');
-	path = get_path(cmd[0], env); 
+	path = get_path(cmd[0], env);
 	if (!path)
 	{
 		free_matrix(cmd);
@@ -81,7 +80,9 @@ void	child_process(char *str, char **env, int *fileout)
 {
 	pid_t	pid;
 	int		fd[2];
+	int a;
 	
+	a = *fileout;
 	if (pipe(fd) == -1)
 	{
 		perror("pipe");
@@ -91,7 +92,7 @@ void	child_process(char *str, char **env, int *fileout)
 	if (pid == 0)
 	{
 		close(fd[0]);
-		close(*fileout);
+		//close(*fileout);
 		ft_dup2(&fd[1],STDOUT_FILENO);
 		ft_execve(str, env);
 	}

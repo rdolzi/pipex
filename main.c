@@ -6,107 +6,16 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/29 16:19:20 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/29 23:36:32 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-// ./pipex HERE_DOC LIMITER cmd1 cmd2 file
-// ./pipex file1 cmd1 cmd2 file2 > argc=5 (cmds=2)   
-// int main(int argc, char **argv, char **env)
-// {
-// 	int		filein;
-// 	int		fileout; 
-
-// 	if (argc != 5)
-// 	{
-// 		write(2, &"Error\n", 6);
-// 		exit (EXIT_FAILURE);
-// 	}
-// 	filein = open(argv[1], O_RDONLY, 0777);
-// 	if (filein == -1)
-// 	{
-// 		perror("Open error");
-// 		exit (EXIT_FAILURE);
-// 	}
-// 	if (dup2(filein, STDIN_FILENO) == -1)
-// 		exit(1);
-// 	close(filein);
-// 	fileout = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-// 	if (fileout == -1)
-// 	{
-// 		close(filein);
-// 		perror("Open error");
-// 		exit (EXIT_FAILURE);
-// 	}
-// 	child_process(argv[2], env, &fileout);
-// 	if (dup2(fileout, STDOUT_FILENO) == -1)
-// 		exit(1);
-// 	close(fileout);
-// 	ft_execve(argv[3], env);
-// }
-
-// PROBLEMA: Path error non chiude fd
-// int main(int argc, char **argv, char **env)
-// {
-// 	int i;
-// 	int filein;
-// 	int fileout;
-// 	int is_here_doc;
-
-// 	is_here_doc = !ft_strncmp(argv[1], "here_doc", ft_strlen(argv[1]));
-// 	if (argc < 5 || (is_here_doc && argc != 6))
-// 	{
-// 		write(2, &"Error\n", 6);
-// 		exit(1);
-// 	}
-// 	if (is_here_doc) // caso here_doc
-// 	{
-// 		i = 3;
-// 		filein = 0; // ft_here_doc(&filein); crea filein
-// 		fileout = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0777);
-// 		if (fileout == -1)
-// 		{
-// 			close(filein);
-// 			perror("Open error");
-// 			exit(3);
-// 		}
-// 	}
-// 	else
-// 	{
-// 		i = 2;
-// 		filein = open(argv[1], O_RDONLY, 0777);
-// 		if (filein == -1)
-// 		{
-// 			perror("Open error");
-// 			exit(2);
-// 		}
-// 		fileout = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-// 		if (fileout == -1)
-// 		{
-// 			close(filein);
-// 			perror("Open error");
-// 			exit(3);
-// 		}
-// 	}
-// 	ft_dup2(&filein, STDIN_FILENO);
-// 	while (i < argc - 2)
-// 		child_process(argv[i++], env, &fileout);
-// 	// if (is_here_doc)
-// 	// unlink();
-// 	int test = fork();
-// 	if (test == 0)
-// 	{
-// 		ft_dup2(&fileout, STDOUT_FILENO);
-// 		ft_execve(argv[i], env);
-// 	}
-// 	waitpid(test, NULL, 0);
-// }
-
-int		ft_here_doc(int *filein, char *limiter)
+int	ft_here_doc(int *filein, char *limiter)
 {
-	char *str;
+	char	*str;
+
 	*filein = open("temp.txt", O_RDWR | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
 	if (*filein == -1)
 	{
@@ -114,9 +23,9 @@ int		ft_here_doc(int *filein, char *limiter)
 		perror("Open error");
 		exit (3);
 	}
-	while ((ft_strncmp(str, limiter, ft_strlen(str) - 1)) || ft_strlen(str) != ft_strlen(limiter) )
+	while ((ft_strncmp(str, limiter, ft_strlen(str) - 1)) || (ft_strlen(str) - 1) != ft_strlen(limiter) )
 	{
-		write(1,&"pipe heredoc>", 13);
+		write(1, &"pipe heredoc>", 13);
 		str = get_next_line(0);
 		if (write(*filein, str, ft_strlen(str)) == -1)
 		{
@@ -124,9 +33,9 @@ int		ft_here_doc(int *filein, char *limiter)
 			perror("Write error");
 			exit(22);
 		}
-		if(!str)
+		if (!str)
 		{
-			if(unlink("./temp.txt") != 0)
+			if (unlink("./temp.txt") != 0)
 				perror("unlink error");
 		}
 		free(str);
@@ -136,7 +45,7 @@ int		ft_here_doc(int *filein, char *limiter)
 	return (*filein);
 }
 
-void ft_setup(int argc, char **argv, t_setup *setup)
+void	ft_setup(int argc, char **argv, t_setup *setup)
 {
 	setup->is_here_doc = !ft_strncmp(argv[1], "here_doc", ft_strlen(argv[1]));
 	if (argc < 5 || (setup->is_here_doc && argc != 6))
@@ -144,19 +53,18 @@ void ft_setup(int argc, char **argv, t_setup *setup)
 		write(2, &"Error\n", 6);
 		exit(1);
 	}
-	if (setup->is_here_doc) 
+	if (setup->is_here_doc)
 	{
 		setup->i = 3;
 		ft_here_doc(&setup->filein, argv[2]);
-		setup->fileout = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0777);
+		setup->fileout = open(argv[
+				argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0777);
 		if (setup->fileout == -1)
 		{
 			close(setup->filein);
 			perror("Open error");
 			exit(3);
 		}
-		// printf("%s\n", get_next_line(setup->filein));
-		// printf("%d\n", setup->filein);
 	}
 	else
 	{
@@ -167,7 +75,8 @@ void ft_setup(int argc, char **argv, t_setup *setup)
 			perror("Open error");
 			exit(2);
 		}
-		setup->fileout = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+		setup->fileout = open(argv[
+				argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
 		if (setup->fileout == -1)
 		{
 			close(setup->filein);
@@ -175,41 +84,44 @@ void ft_setup(int argc, char **argv, t_setup *setup)
 			exit(3);
 		}
 	}
-	printf("%d\n", setup->filein);
 	ft_dup2(&setup->filein, STDIN_FILENO);
 }
 
 //V2 WITH T_SETUP
-int main(int argc, char **argv, char **env)
+int	main(int argc, char **argv, char **env)
 {
+	int		j;
 	t_setup	setup;
-	int j;
 	char	**cmd;
 	char	*path;
 
-	
 	ft_setup(argc, argv, &setup);
 	j = setup.i;
-
-	
 	while (j <= argc - 2)
 	{
-		printf("entra\n");
 		cmd = ft_split(argv[j++], ' ');
-		printf("%s\n", cmd[0]);
-		path = get_path(cmd[0], env); 
+		path = get_path(cmd[0], env);
 		if (!path)
 		{
+			close(setup.fileout);
+			close(setup.filein);
 			free_matrix(cmd);
 			perror("Path Error");
-			exit(20); 
+			exit(20);
 		}
-		printf("esce\n");
-	} 
+		free_matrix(cmd);
+		free(path);
+	}
+	close(setup.filein);
+	//close(setup.fileout);
 	while (setup.i < argc - 2)
 		child_process(argv[setup.i++], env, &setup.fileout);
-	// if (is_here_doc)
-	// unlink();
+	if (setup.is_here_doc)
+	{
+		close(setup.filein);
+		unlink("temp.txt");
+	}
+	close(setup.filein);
 	int test = fork();
 	if (test == 0)
 	{
@@ -217,4 +129,6 @@ int main(int argc, char **argv, char **env)
 		ft_execve(argv[setup.i], env);
 	}
 	waitpid(test, NULL, 0);
+	close(setup.fileout);
+	close(setup.filein);
 }
