@@ -12,6 +12,10 @@
 //STRERROR
 #include <string.h>
 
+#ifndef BUFFER_SIZE
+# define BUFFER_SIZE 1
+#endif
+
 typedef struct s_setup
 {
     int i;
@@ -24,4 +28,14 @@ char	**get_cmd(char **argv, int pos);
 void	child_process(char *str, char **env, int *fileout);
 void	ft_execve(char *str, char **env);
 void	ft_dup2(int *fd, int arg);
+int		ft_here_doc(int *filein, char *limiter);
+
+//GNL
+char	*get_next_line(int fd);
+char	*ft_strjoin_gnl(char *s1, char *s2);
+int		ft_strchr_gnl(char *s1, char c);
+size_t	ft_strlen_gnl(char *str);
+void	*ft_free(char *s1, char *s2);
+size_t	ft_is_newline(char c);
+
 #endif

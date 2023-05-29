@@ -6,12 +6,13 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/28 14:22:07 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/29 13:10:18 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
+// ./pipex HERE_DOC LIMITER cmd1 cmd2 file
 // ./pipex file1 cmd1 cmd2 file2 > argc=5 (cmds=2)   
 // int main(int argc, char **argv, char **env)
 // {
@@ -103,6 +104,37 @@
 // 	waitpid(test, NULL, 0);
 // }
 
+int		ft_here_doc(int *filein, char *limiter)
+{
+	char *str;
+	*filein = open("temp.txt", O_RDWR | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
+	if (*filein == -1)
+	{
+		close(*filein);
+		perror("Open error");
+		exit (3);
+	}
+	while (1)
+	{
+		write(1,&"pipe heredoc>", 13);
+		str = get_next_line(0);
+		if (write(*filein, str, ft_strlen(str)) == -1)
+		{
+			perror("Write error");
+			exit(22);
+		}
+		if(!str)
+		{
+			if(unlink("./temp.txt") != 0)
+				perror("unlink error");
+		}
+		if (!ft_strncmp(str, limiter, ft_strlen(str) - 1))
+			break ;
+		free(str);
+	}
+	return (*filein);
+}
+
 void ft_setup(int argc, char **argv, t_setup *setup)
 {
 	setup->is_here_doc = !ft_strncmp(argv[1], "here_doc", ft_strlen(argv[1]));
@@ -111,10 +143,10 @@ void ft_setup(int argc, char **argv, t_setup *setup)
 		write(2, &"Error\n", 6);
 		exit(1);
 	}
-	if (setup->is_here_doc) // caso here_doc
+	if (setup->is_here_doc) 
 	{
 		setup->i = 3;
-		setup->filein = 0; // ft_here_doc(&filein); crea filein
+		ft_here_doc(&setup->filein, argv[2]);
 		setup->fileout = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0777);
 		if (setup->fileout == -1)
 		{
@@ -122,6 +154,7 @@ void ft_setup(int argc, char **argv, t_setup *setup)
 			perror("Open error");
 			exit(3);
 		}
+		printf("%d\n", setup->filein);
 	}
 	else
 	{
@@ -140,6 +173,7 @@ void ft_setup(int argc, char **argv, t_setup *setup)
 			exit(3);
 		}
 	}
+	printf("%d\n", setup->filein);
 	ft_dup2(&setup->filein, STDIN_FILENO);
 }
 

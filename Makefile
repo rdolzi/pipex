@@ -3,6 +3,8 @@ LIBFT = libft
 
 SRCS = main.c \
 	   child_process.c \
+	   get_next_line.c \
+	   get_next_line_utils.c \
 
 
 FLAGS = -Wextra -Werror -Wall
