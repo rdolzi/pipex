@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/29 23:36:32 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/30 02:04:30 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,12 @@ int	ft_here_doc(int *filein, char *limiter)
 		perror("Open error");
 		exit (3);
 	}
-	while ((ft_strncmp(str, limiter, ft_strlen(str) - 1)) || (ft_strlen(str) - 1) != ft_strlen(limiter) )
+	while ((ft_strncmp(str, limiter, ft_strlen(str) - 1)) || (ft_strlen(str) - 1) != ft_strlen(limiter))
 	{
 		write(1, &"pipe heredoc>", 13);
 		str = get_next_line(0);
 		if (write(*filein, str, ft_strlen(str)) == -1)
 		{
-			printf("GG\n");
 			perror("Write error");
 			exit(22);
 		}
@@ -113,7 +112,6 @@ int	main(int argc, char **argv, char **env)
 		free(path);
 	}
 	close(setup.filein);
-	//close(setup.fileout);
 	while (setup.i < argc - 2)
 		child_process(argv[setup.i++], env, &setup.fileout);
 	if (setup.is_here_doc)

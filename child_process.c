@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/29 23:28:47 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/30 02:04:01 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ char	*get_path(char *cmd, char **env)
 	free_matrix(base);
 	return (NULL);
 }
+
 void	ft_dup2(int *fd, int arg)
 {
 	if (dup2(*fd, arg) == -1)
@@ -67,7 +68,7 @@ void	ft_execve(char *str, char **env)
 	{
 		free_matrix(cmd);
 		perror("Path Error");
-		exit(20); 
+		exit(20);
 	}
 	if (execve(path, cmd, env) == -1)
 	{
@@ -76,12 +77,13 @@ void	ft_execve(char *str, char **env)
 	}
 }
 
+//levare fileout
 void	child_process(char *str, char **env, int *fileout)
 {
 	pid_t	pid;
 	int		fd[2];
-	int a;
-	
+	int		a;
+
 	a = *fileout;
 	if (pipe(fd) == -1)
 	{
@@ -91,15 +93,16 @@ void	child_process(char *str, char **env, int *fileout)
 	pid = fork();
 	if (pid == 0)
 	{
-		close(fd[0]);
-		//close(*fileout);
-		ft_dup2(&fd[1],STDOUT_FILENO);
+		close (fd[0]);
+		ft_dup2(&fd[1], STDOUT_FILENO);
+		close (fd[1]);
 		ft_execve(str, env);
 	}
 	else
 	{
 		close(fd[1]);
 		ft_dup2(&fd[0], STDIN_FILENO);
+		close(fd[0]);
 		waitpid(pid, NULL, 0);
 	}
 }
