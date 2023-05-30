@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/30 15:58:44 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/30 16:13:50 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,8 @@ int	main(int argc, char **argv, char **env)
 	int		test;
 	t_setup	setup;
 
+	if (argc == 1)
+		exit(write(2, &"Error\n", 6));
 	setup.is_here_doc = !ft_strncmp(argv[1], "here_doc", ft_strlen(argv[1]));
 	if (argc < 5 || (setup.is_here_doc && argc != 6))
 		exit(write(2, &"Error\n", 6));
