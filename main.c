@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/30 02:04:30 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/30 02:07:48 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ void	ft_setup(int argc, char **argv, t_setup *setup)
 int	main(int argc, char **argv, char **env)
 {
 	int		j;
+	int		test;
 	t_setup	setup;
 	char	**cmd;
 	char	*path;
@@ -120,7 +121,7 @@ int	main(int argc, char **argv, char **env)
 		unlink("temp.txt");
 	}
 	close(setup.filein);
-	int test = fork();
+	test = fork();
 	if (test == 0)
 	{
 		ft_dup2(&setup.fileout, STDOUT_FILENO);
