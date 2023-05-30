@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 02:27:48 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/30 02:04:01 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/05/30 15:31:28 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,13 +78,11 @@ void	ft_execve(char *str, char **env)
 }
 
 //levare fileout
-void	child_process(char *str, char **env, int *fileout)
+void	child_process(char *str, char **env)
 {
 	pid_t	pid;
 	int		fd[2];
-	int		a;
 
-	a = *fileout;
 	if (pipe(fd) == -1)
 	{
 		perror("pipe");
