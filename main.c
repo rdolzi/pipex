@@ -6,7 +6,7 @@
 /*   By: rdolzi <rdolzi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/15 16:51:25 by rdolzi            #+#    #+#             */
-/*   Updated: 2023/05/30 16:52:40 by rdolzi           ###   ########.fr       */
+/*   Updated: 2023/08/22 23:29:33 by rdolzi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ int	ft_here_doc(int *filein, char *limiter)
 {
 	char	*str;
 
+	str = "need_just_a_fake_value_pre_while";
 	*filein = open("temp.txt", O_RDWR | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
 	if (*filein == -1)
 		ft_perror("Open error", 3, filein);
